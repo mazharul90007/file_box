@@ -21,7 +21,7 @@ export default function Home() {
         <Link href="/drive">
           <Button
             size="lg"
-            className="h-14 px-8 text-base font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-full shadow-lg active:scale-95 transition-all duration-300 flex items-center gap-3 group cursor-pointer"
+            className="h-14 px-8 text-base font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-md shadow-lg active:scale-95 transition-all duration-300 flex items-center gap-3 group cursor-pointer"
           >
             Open File Box
             <FaRegFolderOpen className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300" />
