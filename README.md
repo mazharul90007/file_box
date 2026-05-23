@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://filebox-two.vercel.app" target="blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/512px-Google_Drive_icon_%282020%29.svg.png" width="100" alt="File Box Logo" /></a>
+  <a href="https://filebox-two.vercel.app" target="blank"><img src="https://res.cloudinary.com/dp6urj3gj/image/upload/v1779528329/file_box_r2f2td.png" width="100" alt="File Box Logo" /></a>
 </p>
 
 <p align="center">A premium cloud workspace UI for organizing files and documents, featuring global search, dynamic color themes, and soft-delete trash bins.</p>
