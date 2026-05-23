@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <a href="https://filebox-two.vercel.app" target="blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/512px-Google_Drive_icon_%282020%29.svg.png" width="100" alt="File Box Logo" /></a>
+</p>
 
-## Getting Started
+<p align="center">A premium cloud workspace UI for organizing files and documents, featuring global search, dynamic color themes, and soft-delete trash bins.</p>
 
-First, run the development server:
+# FILE BOX
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**FILE BOX** is a responsive, modern Next.js frontend built for managing files and folders. It provides an intuitive, Google Drive-like experience where users can seamlessly create, customize, and organize their directories with dynamic color tagging, instant search filtering, and state persistence.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🌐 **Frontend Live URL:** [https://filebox-two.vercel.app](https://filebox-two.vercel.app)  
+🌐 **Frontend GitHub:** [https://github.com/mazharul90007/file_box](https://github.com/mazharul90007/file_box)  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Features
 
-## Learn More
+### 📁 Core File Management
+- **Workspaces & Directories**: Create unlimited nested folders and dummy text files. Click into folders to navigate seamlessly through the directory tree.
+- **Rename & Organize**: Instantly rename any file or folder using a seamless modal interface, preventing duplicate names in the same directory.
+- **Dynamic Color Coding**: Customize the background color of any file or folder card from a curated palette of 10 modern colors, creating a visually organized and premium aesthetic.
 
-To learn more about Next.js, take a look at the following resources:
+### 🔍 Search & Discovery
+- **Instant Global Search**: Start typing in the header to instantly filter and display matching files and folders globally from across your entire workspace.
+- **Recent View**: A dedicated "Recent" page that dynamically tracks active files, sorted automatically by their most recent modification date.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🗑️ Soft Deletion & Recovery
+- **Move to Trash**: Instead of immediate permanent deletion, items are moved to the Trash Bin.
+- **Trash Bin**: Review deleted items. Choose to **Restore** them back to their original workspace locations, or **Delete Permanently**.
+- **Cascade Deletion**: Moving a folder to the trash cascades the action to all nested contents inside it.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 💻 Tech Stack
+- **Next.js 15 (App Router)** & **React 19**
+- **Tailwind CSS v4** for styling and premium glassmorphic UI elements
+- **Zustand** for complex state management and `localStorage` persistence
+- **React Icons (Feather)** for modern, crisp SVG iconography
