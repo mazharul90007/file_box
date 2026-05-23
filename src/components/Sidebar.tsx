@@ -1,4 +1,5 @@
 "use client"
+import { useFileStore } from "@/hooks/userFileStore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +18,8 @@ export default function Sidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null)
+    const addFolder = useFileStore((state) => state.addFolder);
+    const addFile = useFileStore((state) => state.addFile);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -29,6 +32,15 @@ export default function Sidebar() {
             document.removeEventListener("mousedown", handleClickOutside)
         }
     }, []);
+
+    const handleCreateFolder = () => {
+        const folderName = prompt('Enter new folder name:');
+        if (folderName && folderName.trim()) {
+            addFolder(folderName.trim());
+        }
+        setIsOpen(false)
+    }
+
 
 
     return (
@@ -53,7 +65,7 @@ export default function Sidebar() {
                         <div className="absolute top-14 left-0 right-0 bg-zinc-900 rounded-lg shadow-lg border border-zinc-800 z-50">
                             <div className="p-2 flex flex-col gap-1">
                                 <button
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={() => handleCreateFolder()}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-md transition-colors text-left cursor-pointer"
                                 >
                                     <FiFolderPlus className="w-4 h-4 text-emerald-400" />
