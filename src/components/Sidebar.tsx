@@ -9,7 +9,6 @@ import InputModal from "./InputModal";
 
 const navLinks = [
     { name: "Home", href: "/drive/home", icon: FiHome },
-    { name: "My Drive", href: "/drive/my-drive", icon: FiHardDrive },
     { name: "Recent", href: "/drive/recent", icon: FiClock },
     { name: "Trash", href: "/drive/trash", icon: FiTrash2 }
 ];
@@ -57,7 +56,7 @@ export default function Sidebar() {
     const handleModalSubmit = () => {
         if (!inputValue.trim()) return;
         const trimmedName = inputValue.trim();
-        
+
         const exists = files.some(
             (item) =>
                 item.name.toLowerCase() === trimmedName.toLowerCase() &&
@@ -76,7 +75,7 @@ export default function Sidebar() {
         } else {
             addFile(trimmedName);
         }
-        
+
         setModalType(null);
     }
 
@@ -93,7 +92,7 @@ export default function Sidebar() {
                 <div className="relative w-full" ref={dropdownRef}>
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="py-3 px-6 w-fit text-base font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-md shadow-lg active:scale-95 transition-all duration-300 flex items-center gap-3 group cursor-pointer"
+                        className="py-2.5 px-5 w-fit text-base font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-md shadow-lg active:scale-95 transition-all duration-300 flex items-center gap-2 group cursor-pointer"
                     >
                         <FiPlus className={`w-5 h-5 stroke-[2.5] transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`} />
                         Create
@@ -143,7 +142,7 @@ export default function Sidebar() {
                 Exit Box
             </Link>
 
-            <InputModal 
+            <InputModal
                 isOpen={modalType !== null}
                 onClose={() => setModalType(null)}
                 onSubmit={handleModalSubmit}

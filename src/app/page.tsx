@@ -18,7 +18,7 @@ export default function Home() {
         <p className="text-zinc-400 text-lg leading-relaxed max-w-lg mb-10">
           Control your folders & files with File Box
         </p>
-        <Link href="/drive">
+        <Link href="/drive/home">
           <Button
             size="lg"
             className="h-14 px-8 text-base font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-md shadow-lg active:scale-95 transition-all duration-300 flex items-center gap-3 group cursor-pointer"

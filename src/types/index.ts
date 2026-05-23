@@ -7,5 +7,6 @@ export interface FileNode {
     isTrash: boolean;
     createdAt: string;
     updatedAt: string;
+    color?: string;
 }
 export type TabType = 'home' | 'mydrive' | 'recent' | 'trash';

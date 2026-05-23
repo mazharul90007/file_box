@@ -12,6 +12,11 @@ interface FileStoreState {
     deleteFile: (id: string) => void;
     renameFile: (id: string, name: string) => void;
     updateFileContent: (id: string, content: string) => void;
+    updateFileColor: (id: string, color: string | undefined) => void;
+    moveToTrash: (id: string) => void;
+    restoreFile: (id: string) => void;
+    searchQuery: string;
+    setSearchQuery: (query: string) => void;
 }
 
 const getDescendantIds = (files: FileNode[], targetId: string): string[] => {
@@ -28,6 +33,8 @@ export const useFileStore = create<FileStoreState>()(
         (set) => ({
             files: [],
             activeFolderId: null,
+            searchQuery: "",
+            setSearchQuery: (query) => set({ searchQuery: query }),
             setActiveFolderId: (id) => set({ activeFolderId: id }),
             addFolder: (name) =>
                 set((state) => {
@@ -64,7 +71,26 @@ export const useFileStore = create<FileStoreState>()(
             })),
             updateFileContent: (id: string, content: string) => set((state) => ({
                 files: state.files.map((f) => f.id === id ? { ...f, content, updatedAt: new Date().toISOString() } : f)
-            }))
+            })),
+            updateFileColor: (id: string, color: string | undefined) => set((state) => ({
+                files: state.files.map((f) => f.id === id ? { ...f, color, updatedAt: new Date().toISOString() } : f)
+            })),
+            moveToTrash: (id: string) => set((state) => {
+                const idsToTrash = getDescendantIds(state.files, id);
+                return {
+                    files: state.files.map((f) =>
+                        idsToTrash.includes(f.id) ? { ...f, isTrash: true, updatedAt: new Date().toISOString() } : f
+                    )
+                };
+            }),
+            restoreFile: (id: string) => set((state) => {
+                const idsToRestore = getDescendantIds(state.files, id);
+                return {
+                    files: state.files.map((f) =>
+                        idsToRestore.includes(f.id) ? { ...f, isTrash: false, updatedAt: new Date().toISOString() } : f
+                    )
+                };
+            })
 
 
         }),

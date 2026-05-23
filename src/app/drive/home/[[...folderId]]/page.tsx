@@ -1,10 +1,12 @@
 "use client"
 import React, { useEffect, useState, use } from "react";
 import { useFileStore } from "@/hooks/userFileStore";
-import { FiFolder, FiFileText, FiArrowLeft, FiMoreVertical, FiTrash2, FiEdit2, FiAperture } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { FileNode } from "@/types";
 import TextEditor from "@/components/TextEditor";
+import InputModal from "@/components/InputModal";
+import FileCard from "@/components/FileCard";
 
 interface PageProps {
     params: Promise<{ folderId?: string[] }>;
@@ -19,16 +21,51 @@ export default function HomePage({ params }: PageProps) {
 
     const files = useFileStore((state) => state.files);
     const setActiveFolderId = useFileStore((state) => state.setActiveFolderId);
-    const deleteFile = useFileStore((state) => state.deleteFile);
+    const renameFile = useFileStore((state) => state.renameFile);
+    const searchQuery = useFileStore((state) => state.searchQuery);
+
     const [mounted, setMounted] = useState(false);
     const [editingFile, setEditingFile] = useState<FileNode | null>(null);
     const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
+    // Rename States
+    const [renamingItem, setRenamingItem] = useState<FileNode | null>(null);
+    const [renameValue, setRenameValue] = useState("");
+    const [renameError, setRenameError] = useState<string | null>(null);
+
+    // Color Selector State
+    const [showColorPickerId, setShowColorPickerId] = useState<string | null>(null);
+
     useEffect(() => {
-        const handleClickOutside = () => setActiveDropdownId(null);
+        const handleClickOutside = () => {
+            setActiveDropdownId(null);
+            setShowColorPickerId(null);
+        };
         window.addEventListener("click", handleClickOutside);
         return () => window.removeEventListener("click", handleClickOutside);
     }, []);
+
+    const handleRenameSubmit = () => {
+        if (!renameValue.trim() || !renamingItem) return;
+        const trimmedName = renameValue.trim();
+
+        const exists = files.some(
+            (item) =>
+                item.id !== renamingItem.id &&
+                item.name.toLowerCase() === trimmedName.toLowerCase() &&
+                item.parentId === currentFolderId &&
+                item.type === renamingItem.type &&
+                !item.isTrash
+        );
+
+        if (exists) {
+            setRenameError(`A ${renamingItem.type} named "${trimmedName}" already exists in this directory.`);
+            return;
+        }
+
+        renameFile(renamingItem.id, trimmedName);
+        setRenamingItem(null);
+    };
 
     useEffect(() => {
         setActiveFolderId(currentFolderId);
@@ -47,17 +84,29 @@ export default function HomePage({ params }: PageProps) {
     }
 
     const currentItems = files.filter(
-        (item) => item.parentId === currentFolderId && !item.isTrash
+        (item) => {
+            if (item.isTrash) return false;
+            if (searchQuery.trim()) {
+                return item.name.toLowerCase().includes(searchQuery.toLowerCase());
+            }
+            return item.parentId === currentFolderId;
+        }
     );
 
     const currentFolder = files.find((f) => f.id === currentFolderId);
 
-    const handleItemClick = (item: any) => {
+    const handleItemClick = (item: FileNode) => {
         if (item.type === "folder") {
             router.push(`/drive/home/${item.id}`);
         } else {
             setEditingFile(item);
         }
+    };
+
+    const handleRenameClick = (item: FileNode) => {
+        setRenamingItem(item);
+        setRenameValue(item.name);
+        setRenameError(null);
     };
 
     return (
@@ -66,7 +115,6 @@ export default function HomePage({ params }: PageProps) {
                 {currentFolderId && (
                     <button
                         onClick={() => {
-
                             if (currentFolder?.parentId) {
                                 router.push(`/drive/home/${currentFolder.parentId}`);
                             } else {
@@ -81,7 +129,9 @@ export default function HomePage({ params }: PageProps) {
                 )}
 
                 <h1 className="text-2xl font-bold text-white">
-                    {currentFolder ? currentFolder.name : "Home Workspace"}
+                    {searchQuery.trim() 
+                        ? `Search Results for "${searchQuery}"` 
+                        : (currentFolder ? currentFolder.name : "Home Workspace")}
                 </h1>
             </div>
 
@@ -92,81 +142,38 @@ export default function HomePage({ params }: PageProps) {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                     {currentItems.map((item) => (
-                        <div
+                        <FileCard
                             key={item.id}
-                            onClick={() => handleItemClick(item)}
-                            className="group relative border border-zinc-800/80 bg-zinc-800/60 hover:bg-zinc-700/70 hover:border-zinc-700/50 p-2 rounded-lg transition-all duration-300 cursor-pointer shadow-md flex flex-col justify-between"
-                        >
-                            <div className="flex items-center gap-3 w-full min-w-0">
-                                {item.type === "folder" ? (
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:scale-105 transition-transform duration-300 shrink-0">
-                                        <FiFolder className="w-6 h-6 fill-emerald-500/10" />
-                                    </div>
-                                ) : (
-                                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-105 transition-transform duration-300 shrink-0">
-                                        <FiFileText className="w-6 h-6 fill-blue-500/10" />
-                                    </div>
-                                )}
-                                <h3 className="font-semibold text-zinc-100 text-sm truncate group-hover:text-white transition-colors flex-1 min-w-0 pr-6">
-                                    {item.name}
-                                </h3>
-                                
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveDropdownId(activeDropdownId === item.id ? null : item.id);
-                                    }}
-                                    className="absolute top-3 right-2 p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-700/50 rounded-md transition-colors"
-                                >
-                                    <FiMoreVertical className="w-4 h-4" />
-                                </button>
-
-                                {activeDropdownId === item.id && (
-                                    <div className="absolute top-10 right-2 z-50 w-36 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden py-1 animate-in zoom-in-95 duration-100">
-                                        <button 
-                                            disabled
-                                            className="w-full text-left px-3 py-2 text-xs text-zinc-500 flex items-center gap-2 cursor-not-allowed"
-                                        >
-                                            <FiAperture className="w-3.5 h-3.5" />
-                                            Color
-                                        </button>
-                                        <button 
-                                            disabled
-                                            className="w-full text-left px-3 py-2 text-xs text-zinc-500 flex items-center gap-2 cursor-not-allowed"
-                                        >
-                                            <FiEdit2 className="w-3.5 h-3.5" />
-                                            Rename
-                                        </button>
-                                        <div className="h-px w-full bg-zinc-800 my-1" />
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                deleteFile(item.id);
-                                                setActiveDropdownId(null);
-                                            }}
-                                            className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2 transition-colors"
-                                        >
-                                            <FiTrash2 className="w-3.5 h-3.5" />
-                                            Delete
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="mt-4">
-                                <div className="flex items-center justify-between mt-1 text-[10px] font-medium text-zinc-500">
-                                    <span className="capitalize">{item.type}</span>
-                                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                        </div>
+                            item={item}
+                            onClick={handleItemClick}
+                            activeDropdownId={activeDropdownId}
+                            setActiveDropdownId={setActiveDropdownId}
+                            showColorPickerId={showColorPickerId}
+                            setShowColorPickerId={setShowColorPickerId}
+                            onRename={handleRenameClick}
+                        />
                     ))}
                 </div>
             )}
-            
+
             {editingFile && (
                 <TextEditor file={editingFile} onClose={() => setEditingFile(null)} />
             )}
+
+            <InputModal
+                isOpen={renamingItem !== null}
+                onClose={() => setRenamingItem(null)}
+                onSubmit={handleRenameSubmit}
+                title={`Rename ${renamingItem?.type === 'folder' ? 'Folder' : 'File'}`}
+                placeholder="Enter new name"
+                value={renameValue}
+                onChange={(val) => {
+                    setRenameValue(val);
+                    if (renameError) setRenameError(null);
+                }}
+                error={renameError}
+                submitText="Rename"
+            />
         </div>
     );
 }
