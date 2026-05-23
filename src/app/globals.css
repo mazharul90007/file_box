@@ -128,3 +128,20 @@
     @apply font-sans;
   }
 }
+
+/* Global cursor style for interactive elements */
+button,
+a,
+[role="button"] {
+  cursor: pointer !important;
+}
+
+button:disabled,
+button[disabled],
+a:disabled,
+a[disabled],
+[role="button"]:disabled,
+[role="button"][disabled],
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}

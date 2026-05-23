@@ -11,7 +11,17 @@ interface FileStoreState {
     addFile: (name: string, content?: string) => void;
     deleteFile: (id: string) => void;
     renameFile: (id: string, name: string) => void;
+    updateFileContent: (id: string, content: string) => void;
 }
+
+const getDescendantIds = (files: FileNode[], targetId: string): string[] => {
+    let ids = [targetId];
+    const children = files.filter(f => f.parentId === targetId);
+    for (const child of children) {
+        ids = ids.concat(getDescendantIds(files, child.id));
+    }
+    return ids;
+};
 
 export const useFileStore = create<FileStoreState>()(
     persist(
@@ -45,11 +55,15 @@ export const useFileStore = create<FileStoreState>()(
                 };
                 return { files: [...state.files, newFile] }
             }),
-            deleteFile: (id: string) => set((state) => ({
-                files: state.files.filter((f) => f.id !== id)
-            })),
+            deleteFile: (id: string) => set((state) => {
+                const idsToDelete = getDescendantIds(state.files, id);
+                return { files: state.files.filter((f) => !idsToDelete.includes(f.id)) };
+            }),
             renameFile: (id: string, name: string) => set((state) => ({
                 files: state.files.map((f) => f.id === id ? { ...f, name, updatedAt: new Date().toISOString() } : f)
+            })),
+            updateFileContent: (id: string, content: string) => set((state) => ({
+                files: state.files.map((f) => f.id === id ? { ...f, content, updatedAt: new Date().toISOString() } : f)
             }))
 
 

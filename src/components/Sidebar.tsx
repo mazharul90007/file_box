@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FiPlus, FiHome, FiHardDrive, FiClock, FiTrash2, FiFolderPlus, FiFilePlus } from "react-icons/fi";
+import InputModal from "./InputModal";
 
 
 const navLinks = [
@@ -20,6 +21,12 @@ export default function Sidebar() {
     const dropdownRef = useRef<HTMLDivElement>(null)
     const addFolder = useFileStore((state) => state.addFolder);
     const addFile = useFileStore((state) => state.addFile);
+    const files = useFileStore((state) => state.files);
+    const activeFolderId = useFileStore((state) => state.activeFolderId);
+
+    const [modalType, setModalType] = useState<"folder" | "file" | null>(null);
+    const [inputValue, setInputValue] = useState("");
+    const [modalError, setModalError] = useState<string | null>(null);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -34,14 +41,44 @@ export default function Sidebar() {
     }, []);
 
     const handleCreateFolder = () => {
-        const folderName = prompt('Enter new folder name:');
-        if (folderName && folderName.trim()) {
-            addFolder(folderName.trim());
-        }
-        setIsOpen(false)
+        setInputValue("");
+        setModalError(null);
+        setModalType("folder");
+        setIsOpen(false);
     }
 
+    const handleCreateFile = () => {
+        setInputValue("");
+        setModalError(null);
+        setModalType("file");
+        setIsOpen(false);
+    }
 
+    const handleModalSubmit = () => {
+        if (!inputValue.trim()) return;
+        const trimmedName = inputValue.trim();
+        
+        const exists = files.some(
+            (item) =>
+                item.name.toLowerCase() === trimmedName.toLowerCase() &&
+                item.parentId === activeFolderId &&
+                item.type === modalType &&
+                !item.isTrash
+        );
+
+        if (exists) {
+            setModalError(`A ${modalType} named "${trimmedName}" already exists in this directory.`);
+            return;
+        }
+
+        if (modalType === "folder") {
+            addFolder(trimmedName);
+        } else {
+            addFile(trimmedName);
+        }
+        
+        setModalType(null);
+    }
 
     return (
         <aside className="w-66 bg-zinc-900/60 backdrop-blur-xl border-r border-zinc-900 flex flex-col h-full select-none">
@@ -65,14 +102,14 @@ export default function Sidebar() {
                         <div className="absolute top-14 left-0 right-0 bg-zinc-900 rounded-lg shadow-lg border border-zinc-800 z-50">
                             <div className="p-2 flex flex-col gap-1">
                                 <button
-                                    onClick={() => handleCreateFolder()}
+                                    onClick={handleCreateFolder}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-md transition-colors text-left cursor-pointer"
                                 >
                                     <FiFolderPlus className="w-4 h-4 text-emerald-400" />
                                     <span>New Folder</span>
                                 </button>
                                 <button
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={handleCreateFile}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-md transition-colors text-left cursor-pointer"
                                 >
                                     <FiFilePlus className="w-4 h-4 text-emerald-400" />
@@ -106,7 +143,19 @@ export default function Sidebar() {
                 Exit Box
             </Link>
 
-
+            <InputModal 
+                isOpen={modalType !== null}
+                onClose={() => setModalType(null)}
+                onSubmit={handleModalSubmit}
+                title={modalType === "folder" ? "New Folder" : "New File"}
+                placeholder={modalType === "folder" ? "Enter folder name" : "Enter file name (e.g. notes.txt)"}
+                value={inputValue}
+                onChange={(val) => {
+                    setInputValue(val);
+                    if (modalError) setModalError(null);
+                }}
+                error={modalError}
+            />
         </aside>
     );
 }
